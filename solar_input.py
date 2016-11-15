@@ -23,9 +23,13 @@ def read_space_objects_data_from_file(input_filename):
                 star = Star()
                 parse_star_parameters(line, star)
                 objects.append(star)
+            elif object_type == "planet":
+                planet = Planet()
+                parse_planet_parameters(line, planet)
             else:
                 print("Unknown space object")
 
+    return objects
     return objects
 
 
@@ -87,7 +91,7 @@ def write_space_objects_data_to_file(output_filename, space_objects):
 
     Параметры:
 
-    **output_filename** — имя входного файлаk
+    **output_filename** — имя входного файла
     **space_objects** — список объектов планет и звёзд
     """
     with open(output_filename, 'w') as out_file:
