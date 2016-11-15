@@ -21,9 +21,9 @@ def calculate_force(body, space_objects):
         sina = math.fabs(((body.y - obj.y)/r))
         cosa = math.fabs(((body.x - obj.x)/r))
         print(sina)
-        F = gravitational_constant*(body.m*obj.m)/(r**2)
+        F = gravitational_constant*(body.m*obj.m)/(r**2) 
         body.Fx = F * cosa
-        body.Fy = F * sina
+        body.Fy = F * sina 
 
 
 def move_space_object(body, dt):
@@ -35,7 +35,7 @@ def move_space_object(body, dt):
     ax = body.Fx/body.m
     body.x += body.Vx*dt + 0.5*ax*(dt**2)  #calculations on x coordinate
     body.Vx += ax*dt
-
+    
     ay = body.Fy/body.m
     body.y += body.Vy*dt + 0.5*ay*(dt**2)  #calculations on y coordinate
     body.Vy += ay*dt
