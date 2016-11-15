@@ -1,58 +1,95 @@
 # coding: utf-8
 # license: GPLv3
-import math
 
-gravitational_constant = 6.67408E-11
-"""Гравитационная постоянная Ньютона G"""
+from solar_objects import Star, Planet
 
 
-def calculate_force(body, space_objects):
-    """Вычисляет силу, действующую на тело.
+def read_space_objects_data_from_file(input_filename):
+    """Cчитывает данные о космических объектах из файла, создаёт сами объекты
+    и вызывает создание их графических образов
     Параметры:
-    **body** — тело, для которого нужно вычислить дейстующую силу.
-    **space_objects** — список объектов, которые воздействуют на тело.
+    **input_filename** — имя входного файла
     """
 
-    body.Fx = body.Fy = 0
-    for obj in space_objects:
-        if body == obj:
-            continue  # тело не действует гравитационной силой на само себя!
-        r = ((body.x - obj.x)**2 + (body.y - obj.y)**2)**0.5
-        sina = math.fabs(((body.y - obj.y)/r))
-        cosa = math.fabs(((body.x - obj.x)/r))
-        print(sina)
-        F = gravitational_constant*(body.m*obj.m)/(r**2) 
-        body.Fx = F * cosa
-        body.Fy = F * sina 
+    objects = []
+    with open(input_filename) as input_file:
+        for line in input_file:
+            if len(line.strip()) == 0 or line[0] == '#':
+                continue  # пустые строки и строки-комментарии пропускаем
+            object_type = line.split()[0].lower()
+            if object_type == "star":  # FIXME: do the same for planet !!!!DONE!!!!
+                star = Star()
+                parse_star_parameters(line, star)
+                objects.append(star)
+            elif object_type == "planet":
+                planet = Planet()
+                parse_planet_parameters(line, planet)
+                objects.append(planet)
+            else:
+                print("Unknown space object")
+
+    return objects
 
 
-def move_space_object(body, dt):
-    """Перемещает тело в соответствии с действующей на него силой.
+def parse_star_parameters(line, star):
+    """Считывает данные о звезде из строки.
+    Входная строка должна иметь слеюущий формат:
+    Star <радиус в пикселах> <цвет> <масса> <x> <y> <Vx> <Vy>
+    Здесь (x, y) — координаты зведы, (Vx, Vy) — скорость.
+    Пример строки:
+    Star 10 red 1000 1 2 3 4
     Параметры:
-    **body** — тело, которое нужно переместить.
+    **line** — строка с описание звезды.
+    **star** — объект звезды.
     """
+    star.R = float(line.split()[1])
+    star.color = line.split()[2]
+    star.m = float(line.split()[3])
+    star.x = float(line.split()[4])
+    star.y = float(line.split()[5])
+    star.Vx = float(line.split()[6])
+    star.Vy = float(line.split()[7])
 
-    ax = body.Fx/body.m
-    body.x += body.Vx*dt + 0.5*ax*(dt**2)  #calculations on x coordinate
-    body.Vx += ax*dt
-    
-    ay = body.Fy/body.m
-    body.y += body.Vy*dt + 0.5*ay*(dt**2)  #calculations on y coordinate
-    body.Vy += ay*dt
 
-
-def recalculate_space_objects_positions(space_objects, dt):
-    """Пересчитывает координаты объектов.
+def parse_planet_parameters(line, planet):
+    """Считывает данные о планете из строки.
+    Предполагается такая строка:
+    Входная строка должна иметь слеюущий формат:
+    Planet <радиус в пикселах> <цвет> <масса> <x> <y> <Vx> <Vy>
+    Здесь (x, y) — координаты планеты, (Vx, Vy) — скорость.
+    Пример строки:
+    Planet 10 red 1000 1 2 3 4
     Параметры:
-    **space_objects** — список оьъектов, для которых нужно пересчитать координаты.
-    **dt** — шаг по времени
+    **line** — строка с описание планеты.
+    **planet** — объект планеты.
     """
+    planet.R = float(line.split()[1])
+    planet.color = line.split()[2]
+    planet.m = float(line.split()[3])
+    planet.x = float(line.split()[4])
+    planet.y = float(line.split()[5])
+    planet.Vx = float(line.split()[6])
+    planet.Vy = float(line.split()[7])
 
-    for body in space_objects:
-        calculate_force(body, space_objects)
-    for body in space_objects:
-        move_space_object(body, dt)
 
+
+def write_space_objects_data_to_file(output_filename, space_objects):
+    """Сохраняет данные о космических объектах в файл.
+    Строки должны иметь следующий формат:
+    Star <радиус в пикселах> <цвет> <масса> <x> <y> <Vx> <Vy>
+    Planet <радиус в пикселах> <цвет> <масса> <x> <y> <Vx> <Vy>
+    Параметры:
+    **output_filename** — имя входного файла
+    **space_objects** — список объектов планет и звёзд
+    """
+    with open(output_filename, 'w') as out_file:
+        for obj in space_objects:
+            out_file.write('{} {} {} {} {} {} {} {}\n'.format(\
+                obj.type.capitalize(), obj.R, obj.color, obj.m, obj.x, obj.y, obj.Vx, obj.Vy))
+        out_file.close()
+            # FIXME: should store real values
+
+# FIXME: хорошо бы ещё сделать функцию, сохранающую статистику в заданный файл...
 
 if __name__ == "__main__":
     print("This module is not for direct call!")
